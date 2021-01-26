@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ import br.com.cfc.application.exception.ApiException;
 import br.com.cfc.application.service.ApiClienteService;
 import br.com.cfc.application.service.ApiEnderecoService;
 import br.com.cfc.application.service.ApiMovimetacaoService;
+import br.com.cfc.application.service.ApiRelatorioService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -50,6 +52,7 @@ public class ApiController {
 	private final ApiClienteService clienteService;
 	private final ApiEnderecoService endService;
 	private final ApiMovimetacaoService movService;
+	private final ApiRelatorioService relService;
 
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping("/cliente")
@@ -147,7 +150,7 @@ public class ApiController {
 
 	
 	@ResponseStatus(HttpStatus.OK)
-	@PatchMapping("/movimentacao")
+	@PostMapping("/movimentacao")
 	@ApiOperation(value = "Metodo para criar movimentacao")
 	@Produces(value=MediaType.APPLICATION_JSON)
 	public ResponseEntity<?> updateMovimentacao( @Valid @RequestBody MovimentacaoDto  movimentacao,
@@ -167,5 +170,29 @@ public class ApiController {
                         .description(ex.getMessage())
                         .build());
 	        }
-	}		
+	}
+	
+	
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping("/relatorio")
+	@ApiOperation(value = "Metodo para Gerar relatorio de clientes")
+	@Produces(value=MediaType.APPLICATION_JSON)
+	public ResponseEntity<?> getRelCliente( @Valid @RequestBody EnderecoDto  endereco,
+										  @RequestParam(required = true, name = "identificador") String identificador
+			) throws ApiException {
+
+		
+			try {
+				return ResponseEntity.ok( relService.getRelatorioCliente(identificador) );
+				
+	        } catch (ApiException ex) 
+			{
+	        	log.error(ex.getMessage());
+	            return ResponseEntity.status(ex.getStatusCode()).body(Error.builder()
+                        .code(ex.getStatusCode().toString())
+                        .message(ex.getCode())
+                        .description(ex.getMessage())
+                        .build());
+	        }
+	}
 }
